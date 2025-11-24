@@ -1,7 +1,7 @@
 # Update packages
 sudo apt-get update -y
 
-# Install unzip (if not installed)
+# Install the unzip (if not installed)
 sudo apt-get install -y unzip curl
 
 # Download latest Terraform
