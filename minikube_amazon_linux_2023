@@ -1,0 +1,107 @@
+🚀 Minikube Installation on Amazon Linux 2023
+
+This guide explains how to install Minikube on Amazon Linux 2023 using the Docker driver.
+All steps are tested and suitable for learning and practice.
+
+📌 Prerequisites
+
+Amazon Linux 2023 EC2 instance
+
+User: ec2-user
+
+Architecture: x86_64
+
+Internet access
+
+IAM role or security group allowing outbound access
+
+🧱 Step 1: Update the System
+sudo dnf update -y
+
+📦 Step 2: Install Required Dependencies
+sudo dnf install -y curl wget conntrack socat iptables iproute-tc
+
+
+These packages are required for Kubernetes networking and container runtime support.
+
+🐳 Step 3: Install Docker (Amazon Linux 2023 Method)
+
+⚠️ Docker convenience script (get.docker.com) is not supported on Amazon Linux 2023.
+
+Install Docker
+sudo dnf install -y docker
+
+Start and Enable Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+👤 Step 4: Configure Docker Access for ec2-user (Critical)
+sudo usermod -aG docker ec2-user
+newgrp docker
+
+Verify Docker (No sudo)
+docker ps
+docker version
+
+☸️ Step 5: Install Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+Verify Installation
+minikube version
+
+🧰 Step 6: Install kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+Verify kubectl
+kubectl version --client
+
+▶️ Step 7: Start Minikube (Do NOT use sudo)
+minikube start --driver=docker
+
+✅ Step 8: Verify Kubernetes Cluster
+kubectl get nodes
+kubectl get pods -A
+
+
+Expected:
+
+Node status: Ready
+
+Core system pods: Running
+
+🌐 Accessing Services on EC2 (Important)
+NodePort Limitation
+
+NodePort services are not directly accessible via EC2 public IP when using Minikube with Docker.
+
+Recommended Options
+Option 1: Minikube Service URL
+minikube service <service-name> --url
+
+Option 2: Port Forwarding
+kubectl port-forward svc/<service-name> 8080:80
+
+
+Access in browser:
+
+http://<EC2-PUBLIC-IP>:8080
+
+❌ Common Mistakes to Avoid
+
+Running minikube with sudo
+
+Using Docker convenience install script
+
+Forgetting to add user to docker group
+
+Expecting NodePort to behave like EKS
+
+Using VM drivers on EC2
+
+🧠 Key Takeaway
+
+Amazon Linux 2023 requires Docker installation via Amazon repositories.
+Minikube must run as a non-root user with Docker group access.
